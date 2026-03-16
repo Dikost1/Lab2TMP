@@ -419,5 +419,43 @@ namespace VirtualMemory
         public bool IsOpen => _isOpen;
         public long Size => _arraySize;
         public ArrayType Type => _arrayType;
+        public int StringLength => _stringLength;
+
+        public void Dump(string outputFileName)
+        {
+            if (!_isOpen)
+                throw new InvalidOperationException("Массив не открыт");
+
+            using (StreamWriter writer = new StreamWriter(outputFileName))
+            {
+                writer.WriteLine($"# Virtual Array Dump");
+                writer.WriteLine($"# Type: {_arrayType}");
+                writer.WriteLine($"# Size: {_arraySize}");
+                if (_arrayType != ArrayType.Int)
+                    writer.WriteLine($"# StringLength: {_stringLength}");
+                writer.WriteLine();
+
+                for (int i = 0; i < _arraySize; i++)
+                {
+                    try
+                    {
+                        if (_arrayType == ArrayType.Int)
+                        {
+                            int value = GetInt(i);
+                            writer.WriteLine($"[{i}] = {value}");
+                        }
+                        else
+                        {
+                            string value = GetString(i);
+                            writer.WriteLine($"[{i}] = \"{value}\"");
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        writer.WriteLine($"[{i}] = <not initialized>");
+                    }
+                }
+            }
+        }
     }
 }

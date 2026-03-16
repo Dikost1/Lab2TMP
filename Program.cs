@@ -64,6 +64,10 @@ namespace VirtualMemory
                     ExitCommand();
                     break;
 
+                case "dump":
+                    DumpCommand(parts);
+                    break;
+
                 default:
                     Console.WriteLine("Неизвестная команда. Введите Help для справки.");
                     break;
@@ -114,6 +118,7 @@ namespace VirtualMemory
                 Console.WriteLine("  Open <имя файла> - открыть существующий массив");
                 Console.WriteLine("  Input <индекс> <значение> - записать значение в элемент");
                 Console.WriteLine("  Print <индекс> - вывести значение элемента");
+                Console.WriteLine("  Dump <имя файла> - экспортировать массив в файл");
                 Console.WriteLine("  Help [команда] - показать справку");
                 Console.WriteLine("  Exit - выход");
             }
@@ -142,6 +147,11 @@ namespace VirtualMemory
                     case "print":
                         Console.WriteLine("Print <индекс>");
                         Console.WriteLine("  Выводит значение элемента массива");
+                        break;
+                    case "dump":
+                        Console.WriteLine("Dump <имя файла>");
+                        Console.WriteLine("  Экспортирует весь массив в текстовый файл");
+                        Console.WriteLine("  Пример: Dump vm_dump.txt");
                         break;
                     default:
                         Console.WriteLine($"Справка по команде {cmd} недоступна");
@@ -352,6 +362,35 @@ namespace VirtualMemory
             Console.WriteLine("Завершение работы...");
             _currentArray?.Close();
             Environment.Exit(0);
+        }
+
+        // команда Dump
+        static void DumpCommand(string[] args)
+        {
+            if (_currentArray == null || !_currentArray.IsOpen)
+            {
+                Console.WriteLine("Массив не открыт. Используйте Create или Open");
+                return;
+            }
+
+            if (args.Length < 2)
+            {
+                Console.WriteLine("Укажите имя файла для экспорта");
+                Console.WriteLine("Пример: Dump dump.txt");
+                return;
+            }
+
+            string fileName = args[1];
+
+            try
+            {
+                _currentArray.Dump(fileName);
+                Console.WriteLine($"Массив экспортирован в файл: {fileName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка экспорта: {ex.Message}");
+            }
         }
     }
 }
